@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card Game - Civica</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/memory-game.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="../index.html" class="logo">Civica</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="#" id="logoutButton">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="game-container">
+        <h1>Memory Card Game</h1>
+        <p>Cocokkan pasangan kartu dengan konsep PKWN.</p>
+        <div class="game-info">
+            <span id="moves">Moves: 0</span>
+            <span id="timer">Time: 0s</span>
+        </div>
+        <div class="memory-game-grid" id="memoryGameGrid">
+        </div>
+        <button id="resetGameBtn" class="btn-primary">Mulai Ulang</button>
+        <div id="gameResult" class="game-result" style="display: none;">
+            <h3>Selamat! Anda menyelesaikan game!</h3>
+            <p>Total Gerakan: <span id="finalMoves"></span></p>
+            <p>Waktu: <span id="finalTime"></span></p>
+            <button class="btn-primary" onclick="location.reload()">Main Lagi</button>
+            <a href="games.html" class="btn-secondary">Kembali ke Daftar Game</a>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 Civica. All rights reserved.</p>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/memory-game.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wheel of Fortune - PKWN Virtual Lab</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/wheel-of-fortune.css" />
+</head>
+<body>
+  <header class="main-header">
+    <nav class="navbar">
+      <a href="../index.html" class="logo">Civica</a>
+      <ul class="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="profile.html">Profile</a></li>
+        <li><a href="#" id="logoutButton">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="wheel-card">
+      <div class="wheel-area">
+        <canvas id="wheelCanvas" width="420" height="420"></canvas>
+        <div class="wheel-pointer">▼</div>
+      </div>
+
+      <div class="controls">
+        <button id="spinButton" class="btn">🎡 Spin</button>
+        <div class="points">
+          Score: <span id="currentScore">0</span> | High Score: <span id="highScore">0</span>
+        </div>
+      </div>
+      <p class="hint">Spin untuk mendapatkan soal dengan poin tertentu!</p>
+    </div>
+
+    <div id="questionArea" class="modal hidden">
+      <div class="modal-content">
+        <button class="close-btn" id="closeQuestion">&times;</button>
+        <h2 id="modalTitle">Pertanyaan</h2>
+        <div id="questionWrap"></div>
+        <div id="optionsContainer"></div>
+        <div id="timerBarWrap">
+          <div id="timerBar"><div></div></div>
+          <span id="timerText">10s</span>
+        </div>
+        <div class="modal-actions">
+          <button id="submitAnswer" class="btn">Submit</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/wheel-of-fortune.js"></script>
+</body>
+</html>

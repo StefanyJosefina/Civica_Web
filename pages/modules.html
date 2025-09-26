@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Civica - Modul</title>
+  <link rel="stylesheet" href="../css/modules.css">
+</head>
+<body>
+  <header class="main-header">
+    <nav class="navbar">
+        <a href="../index.html" class="logo">Civica</a>
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="#" id="logoutButton">Logout</a></li>
+        </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="module">
+      <h2>Modul 1: Filsafat Pancasila</h2>
+      <button class="btnPdf" data-pdf="../assets/2. Filsafat Pancasila.pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="1" disabled>Quiz Modul 1</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 2: Pancasila sebagai Filsafat dan Ideologi Negara</h2>
+      <button class="btnPdf" data-pdf="../assets/3. Pancasila sebagai Filsafat dan Ideologi Negara.pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="2" disabled>Quiz Modul 2</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 3: Identitas dan Integrasi Nasional</h2>
+      <button class="btnPdf" data-pdf="../assets/4. Identitas dan Integrasi Nasional.pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="3" disabled>Quiz Modul 3</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 4: Demokrasi Pancasila</h2>
+      <button class="btnPdf" data-pdf="../assets/5. Demokrasi Pancasila.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="4" disabled>Quiz Modul 4</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 5: Nilai & Norma dalam Kerangka Negara Hukum</h2>
+      <button class="btnPdf" data-pdf="../assets/5. Nilai & Norma dalam Kerangka Negara Hukum.pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="5" disabled>Quiz Modul 5</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 6:Demokrasi Berkeadaban</h2>
+      <button class="btnPdf" data-pdf="../assets/6.1. Demokrasi-Berkeadaban.pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="6" disabled>Quiz Modul 6</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 7: Hak dan Kewajiban Warganegara</h2>
+      <button class="btnPdf" data-pdf="../assets/6.2.Hak dan Kewajiban Warganegara .pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="7" disabled>Quiz Modul 7</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 8: Kepentingan Nasional</h2>
+      <button class="btnPdf" data-pdf="../assets/7.1.Kepentingan Nasional.pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="8" disabled>Quiz Modul 8</button>
+    </div>
+
+    <div class="module">
+      <h2>Modul 9: Hak dan Kewajiban Negara dan Warga Negara serta Hak Asasi Manusia</h2>
+      <button class="btnPdf" data-pdf="../assets/7.2.Hak dan Kewajiban Negara dan Warga Negara serta Hak Asasi Manusia .pptx.pdf">Baca Modul</button>
+      <button class="btnQuiz" data-quiz="quiz.html" data-module="9" disabled>Quiz Modul 9</button>
+    </div>
+  </main>
+
+  <!-- Popup warning -->
+  <div id="popup" class="popup hidden">
+    <div class="popup-content">
+      <p id="popup-message"></p>
+      <button id="closePopup">OK</button>
+    </div>
+  </div>
+
+  <script src="../js/modules.js"></script>
+</body>
+</html>

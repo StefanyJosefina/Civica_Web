@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Civica</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="../index.html" class="logo">Civica</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="#" id="logoutButton">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <aside class="sidebar">
+            <div class="profile-summary">
+                <img src="../assets/profile.jpg" alt="User Avatar" class="profile-avatar">
+                <h3 id="dashboardUserName">Halo, User!</h3>
+                <p id="dashboardUserEmail">user@example.com</p>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="modules.html">Modul Pembelajaran</a></li>
+                    <li><a href="games.html">Mini Games</a></li>
+                    <li><a href="profile.html">Profil Saya</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <section class="content-area">
+            <h1>Dashboard</h1>
+            <div class="dashboard-grid">
+                <div class="card progress-card">
+                    <h3>Progress Belajar</h3>
+                    <p>Modul Selesai: <span id="modulesCompleted">0</span>/9</p>
+                    <p>Skor Quiz Rata-rata: <span id="avgQuizScore">0%</span></p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="card stats-card">
+                    <h3>Statistik Pencapaian</h3>
+                    <p>Game Dimainkan: <span id="gamesPlayed">0</span></p>
+                    <p>Skor Game Tertinggi: <span id="highestGameScore">N/A</span></p>
+                </div>
+                <div class="card quotes-card">
+    <h3>Quotes Hari Ini</h3>
+    <p id="dailyQuote">Belajar adalah investasi terbaik untuk masa depan.</p>
+</div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 Civica. All rights reserved.</p>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

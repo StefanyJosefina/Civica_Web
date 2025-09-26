@@ -1,0 +1,132 @@
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem;
+  min-height: 70vh;
+}
+
+.profile-card {
+  background-color: #ffffff;
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 700px;
+  text-align: center; 
+}
+
+.profile-card h2 {
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.profile-avatar-upload {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+}
+
+.profile-avatar-large {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1rem auto; 
+  border: 3px solid var(--color-secondary);
+  display: block;
+}
+
+.btn-secondary {
+  background-color: var(--color-neutral-dark);
+  color: var(--color-light-text);
+  padding: 0.6rem 1.5rem;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #555555;
+}
+
+.profile-card .form-group {
+  margin-bottom: 1.2rem;
+  text-align: left;
+}
+
+.profile-card .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--color-neutral-dark);
+}
+
+.profile-card .form-group input[type="text"],
+.profile-card .form-group input[type="email"],
+.profile-card .form-group textarea {
+  width: calc(100% - 20px);
+  padding: 0.8rem 10px;
+  border: 1px solid var(--color-neutral-light);
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.profile-card .form-group input[type="email"][readonly] {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+.profile-card .form-group input[type="text"]:focus,
+.profile-card .form-group textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--color-primary), 0.2);
+}
+
+.profile-card .btn-primary {
+  width: auto;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.1rem;
+  margin-top: 1.5rem;
+}
+
+.quiz-history,
+.gamification-collection {
+  margin-top: 2rem;
+  text-align: left;
+  border-top: 1px solid var(--color-neutral-light);
+  padding-top: 1.5rem;
+}
+
+.quiz-history h3,
+.gamification-collection h3 {
+  color: var(--color-primary);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.quiz-history ul {
+  list-style: none;
+  padding: 0;
+}
+
+.quiz-history li {
+  background-color: var(--color-background);
+  padding: 0.8rem 1rem;
+  border-radius: 5px;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quiz-history li span {
+  font-weight: 600;
+}

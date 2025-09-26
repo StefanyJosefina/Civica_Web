@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Civica</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/profile.css">
+</head>
+<body>
+    <header class="main-header">
+        <nav class="navbar">
+            <a href="../index.html" class="logo">Civica</a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="profile.html">Profile</a></li>
+                <li><a href="#" id="logoutButton">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="profile-container">
+        <div class="profile-card">
+            <h2>Profil Pengguna</h2>
+            <div class="profile-avatar-upload">
+                <img src="../assets/profile.jpg" alt="User Avatar" id="profileImage" class="profile-avatar-large">
+                <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                <button class="btn-secondary" onclick="document.getElementById('avatarUpload').click()">Ubah Foto</button>
+            </div>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="profileName">Nama:</label>
+                    <input type="text" id="profileName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="profileEmail">Email:</label>
+                    <input type="email" id="profileEmail" name="email" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="profileBio">Bio:</label>
+                    <textarea id="profileBio" name="bio" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary">Simpan Perubahan</button>
+            </form>
+
+            <h3>Riwayat Quiz</h3>
+            <div id="quizHistory" class="quiz-history">
+                <p>Belum ada riwayat quiz.</p>
+            </div>
+
+            <h3>Koleksi Gamifikasi</h3>
+            <div id="gamificationCollection" class="gamification-collection">
+                <p>Koleksi Anda akan muncul di sini.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <p>&copy; 2025 Civica. All rights reserved.</p>
+    </footer>
+
+    <script src="../js/auth.js"></script>
+    <script src="../js/profile.js"></script>
+</body>
+</html>
