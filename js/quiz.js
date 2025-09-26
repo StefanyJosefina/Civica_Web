@@ -8,11 +8,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentQuestionIndex = 0
   let score = 0
 
-  // Ambil moduleId dari query string
   const urlParams = new URLSearchParams(window.location.search)
   const moduleId = urlParams.get("module")
 
-  // Daftar modul
   const modules = [
     { id: 1, title: "Filsafat Pancasila" },
     { id: 2, title: "Pancasila sebagai Filsafat dan Ideologi Negara" },
@@ -25,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { id: 9, title: "Hak & Kewajiban Negara serta HAM" },
   ]
 
-  // 🔥 Quiz data lengkap 1–9
   const quizData = {
     1: [
       { type: "true-false", question: "Pancasila adalah dasar negara Indonesia.", answer: true },
@@ -167,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
         dragDropArea.appendChild(dropTargets)
         questionContainer.appendChild(dragDropArea)
 
-        // drag & drop event
         let dragged = null
         draggableItems.querySelectorAll(".draggable-item").forEach(item => {
           item.addEventListener("dragstart", e => { dragged = e.target })

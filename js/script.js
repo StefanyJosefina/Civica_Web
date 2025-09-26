@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("PKWN Interaktif script loaded.");
+  console.log("Civica script loaded.");
 
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const currentPage = window.location.pathname.split("/").pop();

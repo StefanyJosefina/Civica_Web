@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createBoard() {
     memoryGameGrid.innerHTML = ""
-    cards = shuffle([...cardConcepts, ...cardConcepts]) // Duplicate and shuffle for pairs
+    cards = shuffle([...cardConcepts, ...cardConcepts]) 
     matchedPairs = 0
     moves = 0
     movesDisplay.textContent = `Moves: ${moves}`
@@ -125,12 +125,9 @@ document.addEventListener("DOMContentLoaded", () => {
     finalMovesSpan.textContent = moves
     finalTimeSpan.textContent = `${timer}s`
 
-    // Update user progress
     const currentUser = JSON.parse(localStorage.getItem("currentUser"))
     if (currentUser) {
       currentUser.progress.gamesPlayed = (currentUser.progress.gamesPlayed || 0) + 1
-      // For highest game score, we can define it as lowest moves or fastest time.
-      // Let's use lowest moves for now.
       if (currentUser.progress.highestGameScore === "N/A" || moves < currentUser.progress.highestGameScore) {
         currentUser.progress.highestGameScore = moves
       }
@@ -154,5 +151,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  createBoard() // Initialize the game when the page loads
+  createBoard() 
 })
