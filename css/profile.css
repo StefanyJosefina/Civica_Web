@@ -1,3 +1,52 @@
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/poppins.regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Chido';
+  src: url('../assets/chido.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--color-text);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Chido', cursive;
+}
+
+button,
+.btn-primary,
+.btn-secondary,
+input[type="submit"],
+input,
+textarea,
+label,
+select {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+input[type="text"],
+input[type="email"],
+textarea {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+input[type="text"]::placeholder,
+textarea::placeholder {
+  font-family: 'Poppins', sans-serif !important;
+  color: var(--color-neutral-dark);
+  opacity: 0.7;
+}
+
 .profile-container {
   display: flex;
   justify-content: center;
@@ -87,7 +136,7 @@
 .profile-card .form-group textarea:focus {
   border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--color-primary), 0.2);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
 }
 
 .profile-card .btn-primary {
@@ -97,31 +146,32 @@
   margin-top: 1.5rem;
 }
 
-.quiz-history,
-.gamification-collection {
-  margin-top: 2rem;
-  text-align: left;
+.quiz-history {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  padding-top: 2rem;
   border-top: 1px solid var(--color-neutral-light);
-  padding-top: 1.5rem;
+  text-align: left;
 }
 
-.quiz-history h3,
-.gamification-collection h3 {
+.quiz-history h3 {
   color: var(--color-primary);
-  margin-bottom: 1rem;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
   font-size: 1.5rem;
 }
 
 .quiz-history ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .quiz-history li {
   background-color: var(--color-background);
-  padding: 0.8rem 1rem;
+  padding: 1rem 1.2rem;
   border-radius: 5px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -129,4 +179,18 @@
 
 .quiz-history li span {
   font-weight: 600;
+}
+
+.gamification-collection {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-neutral-light);
+  text-align: left;
+}
+
+.gamification-collection h3 {
+  color: var(--color-primary);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
 }

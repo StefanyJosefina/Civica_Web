@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/poppins.regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Chido';
+  src: url('../assets/chido.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --c-main: #e64a2b;
   --yellow: #ffd633;
@@ -7,7 +21,7 @@
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: #f5f6f7;
   color: var(--text);
 }
@@ -23,12 +37,21 @@ body {
 
 .wheel-card {
   background: var(--card-bg);
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  padding: 30px 25px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 480px;
+}
+
+.wheel-card h1 {
+  font-family: 'Chido', cursive;
+  font-size: 2.3rem;
+  color: var(--c-main);
+  margin-bottom: 1.2rem;
 }
 
 .wheel-area {
@@ -42,16 +65,19 @@ body {
 
 .wheel-pointer {
   position: absolute;
-  top: -4px;  
-  font-size: 28px;
+  top: -12px;
+  font-size: 38px;
   color: var(--c-main);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .controls {
   display: flex;
   gap: 16px;
   align-items: center;
-  margin-top: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
 }
 
 .btn {
@@ -61,17 +87,51 @@ body {
   border-radius: 8px;
   border: none;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background: var(--yellow);
+  color: var(--text);
+  transform: translateY(-2px);
 }
 
 .points {
   font-weight: bold;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text);
 }
 
 .hint {
   font-size: 14px;
   color: #555;
-  margin-top: 8px;
+  margin-top: 12px;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+.btn-exit {
+  background: transparent;
+  color: var(--c-main);
+  border: 2px solid var(--c-main);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  padding: 10px 24px;
+  border-radius: 10px;
+  margin-top: 1.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-exit:hover {
+  background: var(--c-main);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.12);
 }
 
 .modal {
@@ -83,30 +143,37 @@ body {
   background: rgba(0, 0, 0, 0.45);
   z-index: 2000;
 }
+
 .modal.hidden {
   display: none;
 }
+
 .modal-content {
   width: 92%;
   max-width: 600px;
   background: #fff;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 25px;
   position: relative;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  text-align: center;
 }
+
+.modal-content h2 {
+  color: var(--c-main);
+  margin-bottom: 15px;
+}
+
 .close-btn {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 12px;
+  right: 16px;
   border: none;
   background: transparent;
   font-size: 22px;
   cursor: pointer;
-}
-
-#questionWrap {
-  margin-bottom: 10px;
-  font-weight: bold;
+  color: var(--c-main);
 }
 
 .option {
@@ -116,10 +183,13 @@ body {
   margin-bottom: 8px;
   cursor: pointer;
   background: #fafafa;
+  transition: all 0.2s ease;
 }
+
 .option:hover {
   background: #f0f0f0;
 }
+
 .option.selected {
   background: var(--yellow);
   border-color: #e6c300;
@@ -131,6 +201,7 @@ body {
   gap: 8px;
   margin: 10px 0 14px;
 }
+
 #timerBar {
   flex: 1;
   height: 10px;
@@ -138,12 +209,14 @@ body {
   border-radius: 10px;
   overflow: hidden;
 }
+
 #timerBar > div {
   height: 100%;
   background: var(--c-main);
   width: 100%;
   transition: width 0.2s linear;
 }
+
 #timerText {
   min-width: 54px;
   text-align: right;

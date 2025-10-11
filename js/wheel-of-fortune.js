@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const currentScoreSpan = document.getElementById("currentScore");
   const highScoreSpan = document.getElementById("highScore");
 
+  const gameModal = document.getElementById("gameModal");
+  const modalMessage = document.getElementById("modalMessage");
+
   const segments = [
     { text: "10", color: "#FFD700", points: 10 },
     { text: "20", color: "#FF6347", points: 20 },
@@ -22,21 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const questions = {
-    10: [
-      { q: "Apa ibu kota Indonesia?", a: "Jakarta", o: ["Jakarta", "Bandung", "Surabaya", "Yogyakarta"] },
-    ],
-    20: [
-      { q: "Apa lambang sila pertama Pancasila?", a: "Bintang", o: ["Bintang", "Rantai", "Pohon Beringin", "Kepala Banteng"] },
-    ],
-    30: [
-      { q: "Kapan Indonesia merdeka?", a: "17 Agustus 1945", o: ["17 Agustus 1945", "28 Oktober 1928", "1 Juni 1945", "10 November 1945"] },
-    ],
-    40: [
-      { q: "Siapa pencipta lagu Indonesia Raya?", a: "W.R. Supratman", o: ["W.R. Supratman", "Ismail Marzuki", "C. Simanjuntak", "H. Mutahar"] },
-    ],
-    50: [
-      { q: "Siapa Bapak Proklamator Indonesia?", a: "Soekarno", o: ["Soekarno", "Mohammad Hatta", "Soeharto", "Joko Widodo"] },
-    ],
+    10: [{ q: "Apa ibu kota Indonesia?", a: "Jakarta", o: ["Jakarta", "Bandung", "Surabaya", "Yogyakarta"] }],
+    20: [{ q: "Apa lambang sila pertama Pancasila?", a: "Bintang", o: ["Bintang", "Rantai", "Pohon Beringin", "Kepala Banteng"] }],
+    30: [{ q: "Kapan Indonesia merdeka?", a: "17 Agustus 1945", o: ["17 Agustus 1945", "28 Oktober 1928", "1 Juni 1945", "10 November 1945"] }],
+    40: [{ q: "Siapa pencipta lagu Indonesia Raya?", a: "W.R. Supratman", o: ["W.R. Supratman", "Ismail Marzuki", "C. Simanjuntak", "H. Mutahar"] }],
+    50: [{ q: "Siapa Bapak Proklamator Indonesia?", a: "Soekarno", o: ["Soekarno", "Mohammad Hatta", "Soeharto", "Joko Widodo"] }],
   };
 
   let spinning = false;
@@ -45,6 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedAnswer = null;
   let correctAnswer = null;
   let timerInterval;
+  let currentPoints = 0;
 
   function drawWheel() {
     const centerX = wheelCanvas.width / 2;
@@ -61,12 +55,13 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.moveTo(centerX, centerY);
       ctx.arc(centerX, centerY, radius, angle, angle + arc);
       ctx.fill();
+
       ctx.save();
       ctx.translate(centerX, centerY);
       ctx.rotate(angle + arc / 2);
       ctx.textAlign = "right";
       ctx.fillStyle = "#000";
-      ctx.font = "bold 18px Arial";
+      ctx.font = "bold 18px Poppins";
       ctx.fillText(seg.text, radius - 10, 10);
       ctx.restore();
     });
@@ -103,9 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showQuestion(angle) {
     const arcSize = 360 / segments.length;
-    const normalized = (360 - angle + 90) % 360;
+    const normalized = (360 - angle - 90 + 360) % 360;
     const index = Math.floor(normalized / arcSize);
     const points = segments[index].points;
+    currentPoints = points;
 
     const qObj = questions[points][0];
     correctAnswer = qObj.a;
@@ -125,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
       optionsContainer.appendChild(div);
     });
 
-    questionArea.classList.remove("hidden");
+    questionArea.classList.add("show");
     startTimer();
   }
 
@@ -140,6 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
       timerBar.style.width = (timeLeft * 10) + "%";
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
+        showToast("❌ Waktu Habis!", true);
         gameOver();
       }
     }, 1000);
@@ -148,27 +145,49 @@ document.addEventListener("DOMContentLoaded", () => {
   submitAnswer.addEventListener("click", () => {
     clearInterval(timerInterval);
     if (selectedAnswer === correctAnswer) {
-      currentScore += 10;
+      currentScore += currentPoints; // ✅ poin sesuai segmen
       currentScoreSpan.textContent = currentScore;
+
       if (currentScore > highScore) {
         highScore = currentScore;
         highScoreSpan.textContent = highScore;
       }
-      questionArea.classList.add("hidden");
+
+      showToast(`✅ Benar! +${currentPoints} poin`);
+      questionArea.classList.remove("show");
     } else {
+      showToast("❌ Salah!", true);
       gameOver();
     }
   });
 
-  function gameOver() {
-    alert("Game Over! Skor Anda: " + currentScore);
+  function showToast(text, isError = false) {
+    const notif = document.createElement("div");
+    notif.textContent = text;
+    notif.className = "answer-toast" + (isError ? " error" : "");
+    document.body.appendChild(notif);
+    setTimeout(() => notif.remove(), 1500);
+  }
+
+  function showGameModal(score) {
+    modalMessage.textContent = `Skor Anda: ${score}`;
+    gameModal.classList.add("show");
+  }
+
+  window.closeGameModal = () => {
+    gameModal.classList.remove("show");
     currentScore = 0;
-    currentScoreSpan.textContent = currentScore;
-    questionArea.classList.add("hidden");
+    currentScoreSpan.textContent = 0;
+  };
+
+  function gameOver() {
+    questionArea.classList.remove("show");
+    clearInterval(timerInterval);
+    setTimeout(() => showGameModal(currentScore), 800);
   }
 
   closeQuestion.addEventListener("click", () => {
-    questionArea.classList.add("hidden");
+    questionArea.classList.remove("show");
     clearInterval(timerInterval);
   });
 

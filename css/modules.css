@@ -1,8 +1,26 @@
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/poppins.regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Chido';
+  src: url('../assets/chido.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.logo {
+  font-family: 'Chido', cursive !important;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
 }
 
 .page-title {

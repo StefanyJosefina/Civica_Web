@@ -1,155 +1,167 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const memoryGameGrid = document.getElementById("memoryGameGrid")
-  const movesDisplay = document.getElementById("moves")
-  const timerDisplay = document.getElementById("timer")
-  const resetGameBtn = document.getElementById("resetGameBtn")
-  const gameResultDiv = document.getElementById("gameResult")
-  const finalMovesSpan = document.getElementById("finalMoves")
-  const finalTimeSpan = document.getElementById("finalTime")
+  const grid = document.getElementById("memoryGameGrid");
+  const movesDisplay = document.getElementById("moves");
+  const timerDisplay = document.getElementById("timer");
+  const resetBtn = document.getElementById("resetGameBtn");
+  const exitPageBtn = document.getElementById("exitPageBtn");
+
+  const resultModal = document.getElementById("gameResultModal");
+  const closeResultBtn = document.getElementById("closeResult");
+  const playAgainBtn = document.getElementById("playAgainBtn");
+  const exitGameBtn = document.getElementById("exitGameBtn");
+  const finalMovesSpan = document.getElementById("finalMoves");
+  const finalTimeSpan = document.getElementById("finalTime");
 
   const cardConcepts = [
-    { name: "Pancasila", image: "/placeholder.svg?key=5ulkg" },
-    { name: "Bintang", image: "/placeholder.svg?key=ikzrv" },
-    { name: "Rantai", image: "/placeholder.svg?key=jldst" },
-    { name: "Pohon Beringin", image: "/placeholder.svg?key=xfrnn" },
-    { name: "Kepala Banteng", image: "/placeholder.svg?key=ej8ex" },
-    { name: "Padi Kapas", image: "/placeholder.svg?key=lwxvc" },
-    { name: "UUD 1945", image: "/placeholder.svg?key=wwn19" },
-    { name: "Bhinneka Tunggal Ika", image: "/placeholder.svg?key=8i72q" },
-  ]
+    { name: "Pancasila" },
+    { name: "Bintang" },
+    { name: "Rantai" },
+    { name: "Pohon Beringin" },
+    { name: "Kepala Banteng" },
+    { name: "Padi Kapas" },
+    { name: "UUD 1945" },
+    { name: "Bhinneka Tunggal Ika" },
+  ];
 
-  let cards = []
-  let hasFlippedCard = false
-  let lockBoard = false
-  let firstCard, secondCard
-  let moves = 0
-  let matchedPairs = 0
-  let timer = 0
-  let timerInterval
+  let cards = [];
+  let hasFlipped = false;
+  let lockBoard = false;
+  let firstCard = null, secondCard = null;
+  let moves = 0;
+  let pairsFound = 0;
 
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[array[i], array[j]] = [array[j], array[i]]
+  let timer = 0;
+  let timerInterval = null;
+
+  function shuffle(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    return array
+    return arr;
   }
 
-  function createBoard() {
-    memoryGameGrid.innerHTML = ""
-    cards = shuffle([...cardConcepts, ...cardConcepts]) 
-    matchedPairs = 0
-    moves = 0
-    movesDisplay.textContent = `Moves: ${moves}`
-    timer = 0
-    timerDisplay.textContent = `Time: ${timer}s`
-    clearInterval(timerInterval)
-    gameResultDiv.style.display = "none"
-
-    cards.forEach((card, index) => {
-      const cardElement = document.createElement("div")
-      cardElement.classList.add("memory-card")
-      cardElement.dataset.name = card.name
-      cardElement.innerHTML = `
-                <div class="front-face">${card.name}</div>
-                <div class="back-face">PKWN</div>
-            `
-      cardElement.addEventListener("click", flipCard)
-      memoryGameGrid.appendChild(cardElement)
-    })
-
-    startTimer()
-  }
-
-  function flipCard() {
-    if (lockBoard) return
-    if (this === firstCard) return
-
-    this.classList.add("flip")
-
-    if (!hasFlippedCard) {
-      hasFlippedCard = true
-      firstCard = this
-      return
-    }
-
-    secondCard = this
-    checkForMatch()
-  }
-
-  function checkForMatch() {
-    moves++
-    movesDisplay.textContent = `Moves: ${moves}`
-    const isMatch = firstCard.dataset.name === secondCard.dataset.name
-
-    isMatch ? disableCards() : unflipCards()
-  }
-
-  function disableCards() {
-    firstCard.removeEventListener("click", flipCard)
-    secondCard.removeEventListener("click", flipCard)
-    firstCard.classList.add("matched")
-    secondCard.classList.add("matched")
-    matchedPairs++
-    resetBoard()
-
-    if (matchedPairs === cardConcepts.length) {
-      endGame()
-    }
-  }
-
-  function unflipCards() {
-    lockBoard = true
-    setTimeout(() => {
-      firstCard.classList.remove("flip")
-      secondCard.classList.remove("flip")
-      resetBoard()
-    }, 1000)
-  }
-
-  function resetBoard() {
-    ;[hasFlippedCard, lockBoard] = [false, false]
-    ;[firstCard, secondCard] = [null, null]
-  }
-
-  function startTimer() {
+  function startTimer(){
+    clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-      timer++
-      timerDisplay.textContent = `Time: ${timer}s`
-    }, 1000)
+      timer++;
+      timerDisplay.textContent = `Time: ${timer}s`;
+    }, 1000);
   }
 
-  function endGame() {
-    clearInterval(timerInterval)
-    gameResultDiv.style.display = "block"
-    finalMovesSpan.textContent = moves
-    finalTimeSpan.textContent = `${timer}s`
+  function stopTimer(){
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
 
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"))
-    if (currentUser) {
-      currentUser.progress.gamesPlayed = (currentUser.progress.gamesPlayed || 0) + 1
-      if (currentUser.progress.highestGameScore === "N/A" || moves < currentUser.progress.highestGameScore) {
-        currentUser.progress.highestGameScore = moves
-      }
-      if (moves <= 20 && !currentUser.progress.gamificationCollection.includes("Piala Memori Juara")) {
-        currentUser.progress.gamificationCollection.push("Piala Memori Juara")
-        alert("Selamat! Anda mendapatkan Piala Memori Juara!")
-      }
-      localStorage.setItem("currentUser", JSON.stringify(currentUser))
-      updateAllUsers(currentUser)
+  function createBoard(){
+    grid.innerHTML = "";
+    cards = shuffle([...cardConcepts, ...cardConcepts]);
+    hasFlipped = false;
+    lockBoard = false;
+    firstCard = null;
+    secondCard = null;
+    moves = 0;
+    pairsFound = 0;
+    timer = 0;
+    movesDisplay.textContent = `Moves: ${moves}`;
+    timerDisplay.textContent = `Time: ${timer}s`;
+
+    cards.forEach(({ name }) => {
+      const el = document.createElement("div");
+      el.className = "memory-card";
+      el.dataset.name = name;
+      el.innerHTML = `
+        <div class="front-face">${name}</div>
+        <div class="back-face">PKWN</div>
+      `;
+      el.addEventListener("click", onCardClick);
+      grid.appendChild(el);
+    });
+
+    startTimer();
+  }
+
+  function onCardClick(){
+    if (lockBoard) return;
+    if (this === firstCard) return;
+
+    this.classList.add("flip");
+
+    if (!hasFlipped){
+      hasFlipped = true;
+      firstCard = this;
+      return;
+    }
+
+    secondCard = this;
+    checkMatch();
+  }
+
+  function checkMatch(){
+    moves++;
+    movesDisplay.textContent = `Moves: ${moves}`;
+
+    const match = firstCard.dataset.name === secondCard.dataset.name;
+    if (match) {
+      disableCards();
+    } else {
+      unflipCards();
     }
   }
 
-  resetGameBtn.addEventListener("click", createBoard)
+  function disableCards(){
+    firstCard.removeEventListener("click", onCardClick);
+    secondCard.removeEventListener("click", onCardClick);
+    firstCard.classList.add("matched");
+    secondCard.classList.add("matched");
+    pairsFound++;
+    resetTurn();
 
-  function updateAllUsers(updatedUser) {
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
-    const userIndex = users.findIndex((u) => u.email === updatedUser.email)
-    if (userIndex > -1) {
-      users[userIndex] = updatedUser
-      localStorage.setItem("users", JSON.stringify(users))
+    if (pairsFound === cardConcepts.length){
+      endGame();
     }
   }
 
-  createBoard() 
-})
+  function unflipCards(){
+    lockBoard = true;
+    setTimeout(() => {
+      firstCard.classList.remove("flip");
+      secondCard.classList.remove("flip");
+      resetTurn();
+    }, 850);
+  }
+
+  function resetTurn(){
+    [hasFlipped, lockBoard] = [false, false];
+    [firstCard, secondCard] = [null, null];
+  }
+
+  function endGame(){
+    stopTimer();
+    finalMovesSpan.textContent = moves;
+    finalTimeSpan.textContent = `${timer}s`;
+    resultModal.classList.remove("hidden");
+  }
+
+  resetBtn.addEventListener("click", createBoard);
+
+  exitPageBtn.addEventListener("click", () => {
+    window.location.href = "games.html";
+  });
+
+  closeResultBtn.addEventListener("click", () => {
+    resultModal.classList.add("hidden");
+  });
+
+  playAgainBtn.addEventListener("click", () => {
+    resultModal.classList.add("hidden");
+    createBoard();
+  });
+
+  exitGameBtn.addEventListener("click", () => {
+    window.location.href = "games.html";
+  });
+
+  createBoard();
+});

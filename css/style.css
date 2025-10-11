@@ -1,3 +1,17 @@
+@font-face {
+  font-family: 'Chido';
+  src: url('../assets/chido.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/poppins.regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --color-primary: #e44d26; 
   --color-secondary: #f7b731; 
@@ -6,12 +20,9 @@
   --color-light-text: #ffffff; 
   --color-neutral-light: #cccccc; 
   --color-neutral-dark: #666666; 
-
-  --font-heading: "Poppins", sans-serif;
-  --font-body: "Open Sans", sans-serif;
+  --font-heading: 'Chido', cursive;
+  --font-body: 'Poppins', sans-serif;
 }
-
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Poppins:wght@700&display=swap");
 
 body {
   font-family: var(--font-body);
@@ -22,13 +33,9 @@ body {
   line-height: 1.6;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+  font-weight: normal;
   color: var(--color-primary);
   margin-top: 0;
   margin-bottom: 1rem;
@@ -78,7 +85,7 @@ h6 {
 .hero-section {
   text-align: center;
   padding: 4rem 2rem;
-  background: linear-gradient(to right, var(--color-primary), #ff6b6b); /* Subtle gradient */
+  background: linear-gradient(to right, var(--color-primary), #ff6b6b);
   color: var(--color-light-text);
   min-height: 60vh;
   display: flex;
