@@ -1,13 +1,13 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   console.log("Civica script loaded.");
 
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const token = localStorage.getItem("token");
   const currentPage = window.location.pathname.split("/").pop();
 
   const loginLink = document.getElementById("login-link");
   const registerLink = document.getElementById("register-link");
 
-  if (currentUser) {
+  if (token) {
     if (loginLink) loginLink.style.display = "none";
     if (registerLink) registerLink.style.display = "none";
   }
@@ -15,8 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (currentPage === "index.html" || currentPage === "") {
     const mulaiBelajarBtn = document.getElementById("mulaiBelajarBtn");
 
-    if (mulaiBelajarBtn && currentUser) {
-
+    if (mulaiBelajarBtn && token) {
       mulaiBelajarBtn.href = "pages/dashboard.html";
       console.log("Pengguna sudah login. Tombol 'Mulai Belajar' sekarang mengarah ke dashboard.");
     }

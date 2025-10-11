@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const wheelCanvas = document.getElementById("wheelCanvas");
   const spinButton = document.getElementById("spinButton");
   const ctx = wheelCanvas.getContext("2d");
@@ -39,6 +39,17 @@ document.addEventListener("DOMContentLoaded", () => {
   let correctAnswer = null;
   let timerInterval;
   let currentPoints = 0;
+
+  try {
+    const statsResponse = await apiFetch("/stats");
+    if (statsResponse.ok) {
+      const stats = await statsResponse.json();
+      highScore = stats.highestGameScore === "N/A" ? 0 : parseInt(stats.highestGameScore);
+      highScoreSpan.textContent = highScore;
+    }
+  } catch (error) {
+    console.error("Error loading high score:", error);
+  }
 
   function drawWheel() {
     const centerX = wheelCanvas.width / 2;
@@ -121,6 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       optionsContainer.appendChild(div);
     });
 
+    questionArea.classList.remove("hidden");
     questionArea.classList.add("show");
     startTimer();
   }
@@ -136,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
       timerBar.style.width = (timeLeft * 10) + "%";
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
-        showToast("❌ Waktu Habis!", true);
+        showToast("⌛ Waktu Habis!", true);
         gameOver();
       }
     }, 1000);
@@ -145,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   submitAnswer.addEventListener("click", () => {
     clearInterval(timerInterval);
     if (selectedAnswer === correctAnswer) {
-      currentScore += currentPoints; // ✅ poin sesuai segmen
+      currentScore += currentPoints;
       currentScoreSpan.textContent = currentScore;
 
       if (currentScore > highScore) {
@@ -155,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showToast(`✅ Benar! +${currentPoints} poin`);
       questionArea.classList.remove("show");
+      questionArea.classList.add("hidden");
     } else {
       showToast("❌ Salah!", true);
       gameOver();
@@ -162,32 +175,47 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function showToast(text, isError = false) {
-    const notif = document.createElement("div");
-    notif.textContent = text;
-    notif.className = "answer-toast" + (isError ? " error" : "");
-    document.body.appendChild(notif);
-    setTimeout(() => notif.remove(), 1500);
+    if (typeof showNotification === 'function') {
+      showNotification(text, isError ? "error" : "success");
+    } else {
+      alert(text);
+    }
   }
 
   function showGameModal(score) {
     modalMessage.textContent = `Skor Anda: ${score}`;
+    gameModal.classList.remove("hidden");
     gameModal.classList.add("show");
   }
 
-  window.closeGameModal = () => {
+  window.closeGameModal = async () => {
     gameModal.classList.remove("show");
+    gameModal.classList.add("hidden");
+    
+    try {
+      await apiFetch("/games/highscore", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ score: currentScore })
+      });
+    } catch (error) {
+      console.error("Error saving game score:", error);
+    }
+
     currentScore = 0;
     currentScoreSpan.textContent = 0;
   };
 
   function gameOver() {
     questionArea.classList.remove("show");
+    questionArea.classList.add("hidden");
     clearInterval(timerInterval);
     setTimeout(() => showGameModal(currentScore), 800);
   }
 
   closeQuestion.addEventListener("click", () => {
     questionArea.classList.remove("show");
+    questionArea.classList.add("hidden");
     clearInterval(timerInterval);
   });
 

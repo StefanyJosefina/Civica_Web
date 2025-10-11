@@ -4,12 +4,13 @@
   align-items: center;
   min-height: 70vh;
   padding: 2rem;
+  font-family: 'Poppins', sans-serif;
 }
 
 .auth-card {
   background-color: #ffffff;
   padding: 2.5rem;
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
@@ -49,7 +50,7 @@
 .form-group input[type="text"]:focus {
   border-color: var(--color-primary);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--color-primary), 0.2);
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
 }
 
 .auth-card .btn-primary {
@@ -57,6 +58,15 @@
   padding: 1rem;
   font-size: 1.1rem;
   margin-top: 1rem;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.auth-card .btn-primary:hover {
+  background-color: #0056b3;
 }
 
 .auth-card p {
@@ -72,4 +82,33 @@
 
 .auth-card p a:hover {
   text-decoration: underline;
+}
+
+.notification {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background-color: #4caf50;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s ease;
+  z-index: 9999;
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification.error {
+  background-color: #f44336;
+}
+
+.notification.info {
+  background-color: #2196f3;
 }
