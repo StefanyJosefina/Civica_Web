@@ -16,6 +16,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const gameModal = document.getElementById("gameModal");
   const modalMessage = document.getElementById("modalMessage");
 
+  const spinSound = new Audio("../assets/spinwheel.mp3");
+  const quizSound = new Audio("../assets/quiz.mp3");
+  const correctSound = new Audio("../assets/correct.mp3");
+  const loseSound = new Audio("../assets/kalah.mp3");
+  const bgMusic = new Audio("../assets/game-music.mp3");
+
+  bgMusic.loop = true;
+  bgMusic.volume = 1.0;
+  bgMusic.play().catch(() => {
+    document.body.addEventListener("click", () => {
+      bgMusic.play();
+    }, { once: true });
+  });
+
   const segments = [
     { text: "10", color: "#FFD700", points: 10 },
     { text: "20", color: "#FF6347", points: 20 },
@@ -83,6 +97,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     spinning = true;
     spinButton.disabled = true;
 
+    spinSound.currentTime = 0;
+    spinSound.play();
+
     const spinTime = 3000 + Math.random() * 2000;
     const startAngle = 0;
     const endAngle = startAngle + 1440 + Math.random() * 360;
@@ -101,6 +118,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         wheelCanvas.style.transform = `rotate(${finalAngle}deg)`;
         spinning = false;
         spinButton.disabled = false;
+        spinSound.pause();
+        spinSound.currentTime = 0;
         showQuestion(finalAngle);
       }
     }
@@ -134,7 +153,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     questionArea.classList.remove("hidden");
     questionArea.classList.add("show");
+
+    quizSound.currentTime = 0;
+    quizSound.play();
+
     startTimer();
+  }
+
+  function stopQuizSound() {
+    quizSound.pause();
+    quizSound.currentTime = 0;
   }
 
   function startTimer() {
@@ -148,7 +176,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       timerBar.style.width = (timeLeft * 10) + "%";
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
+        stopQuizSound();
         showToast("⌛ Waktu Habis!", true);
+        loseSound.currentTime = 0;
+        loseSound.play();
         gameOver();
       }
     }, 1000);
@@ -156,6 +187,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   submitAnswer.addEventListener("click", () => {
     clearInterval(timerInterval);
+    stopQuizSound();
+
     if (selectedAnswer === correctAnswer) {
       currentScore += currentPoints;
       currentScoreSpan.textContent = currentScore;
@@ -165,11 +198,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         highScoreSpan.textContent = highScore;
       }
 
+      correctSound.currentTime = 0;
+      correctSound.play();
+
       showToast(`✅ Benar! +${currentPoints} poin`);
       questionArea.classList.remove("show");
       questionArea.classList.add("hidden");
     } else {
       showToast("❌ Salah!", true);
+      loseSound.currentTime = 0;
+      loseSound.play();
       gameOver();
     }
   });
@@ -192,14 +230,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     gameModal.classList.remove("show");
     gameModal.classList.add("hidden");
     
-    try {
-      await apiFetch("/games/highscore", {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ score: currentScore })
-      });
-    } catch (error) {
-      console.error("Error saving game score:", error);
+    if (currentScore > 0) {
+      try {
+        const response = await apiFetch("/games/highscore", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ score: currentScore })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showNotification("Score berhasil disimpan!", "success");
+          if (data.highestGameScore !== "N/A") {
+            highScore = parseInt(data.highestGameScore);
+            highScoreSpan.textContent = highScore;
+          }
+        }
+      } catch (error) {
+        console.error("Error saving game score:", error);
+        showNotification("Gagal menyimpan score.", "error");
+      }
     }
 
     currentScore = 0;
@@ -210,6 +260,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     questionArea.classList.remove("show");
     questionArea.classList.add("hidden");
     clearInterval(timerInterval);
+    stopQuizSound();
     setTimeout(() => showGameModal(currentScore), 800);
   }
 
@@ -217,6 +268,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     questionArea.classList.remove("show");
     questionArea.classList.add("hidden");
     clearInterval(timerInterval);
+    stopQuizSound();
   });
 
   spinButton.addEventListener("click", spin);

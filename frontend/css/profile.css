@@ -194,3 +194,32 @@ textarea::placeholder {
   margin-bottom: 1.5rem;
   font-size: 1.5rem;
 }
+
+.toast {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  padding: 14px 22px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 2000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.success {
+  background-color: #28a745;
+}
+
+.toast.error {
+  background-color: #e64a2b;
+}

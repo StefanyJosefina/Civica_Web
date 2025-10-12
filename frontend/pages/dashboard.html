@@ -13,7 +13,7 @@
             <a href="../index.html" class="logo">Civica</a>
             <ul class="nav-links">
                 <li><a href="../index.html">Home</a></li>
-                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
                 <li><a href="profile.html">Profile</a></li>
                 <li><a href="#" id="logoutButton">Logout</a></li>
             </ul>
@@ -24,8 +24,8 @@
         <aside class="sidebar">
             <div class="profile-summary">
                 <img src="../assets/profile.jpg" alt="User Avatar" class="profile-avatar">
-                <h3 id="dashboardUserName">Halo, User!</h3>
-                <p id="dashboardUserEmail">user@example.com</p>
+                <h3 id="dashboardUserName">Halo, Fina!</h3>
+                <p id="dashboardUserEmail">Test@gmail.com</p>
             </div>
             <nav class="sidebar-nav">
                 <ul>
@@ -36,6 +36,7 @@
                 </ul>
             </nav>
         </aside>
+
         <section class="content-area">
             <h1>Dashboard</h1>
             <div class="dashboard-grid">
@@ -47,14 +48,20 @@
                         <div class="progress-bar" style="width: 0%;"></div>
                     </div>
                 </div>
+
                 <div class="card stats-card">
                     <h3>Statistik Pencapaian</h3>
-                    <p>Game Dimainkan: <span id="gamesPlayed">0</span></p>
-                    <p>Skor Game Tertinggi: <span id="highestGameScore">N/A</span></p>
+                    <p>Game Dimainkan: <span id="gamesPlayed">1</span></p>
+                    <p>Skor Game Tertinggi: <span id="highestGameScore">40</span></p>
                 </div>
+
                 <div class="card quotes-card">
                     <h3>Quotes Hari Ini</h3>
                     <p id="dailyQuote">Belajar adalah investasi terbaik untuk masa depan.</p>
+                </div>
+
+                <div class="mascot-area">
+                    <img src="../assets/maskot-loncat.png" alt="Maskot Civica" class="mascot-bounce">
                 </div>
             </div>
         </section>

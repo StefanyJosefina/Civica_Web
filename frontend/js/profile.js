@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           "<h3>Riwayat Quiz</h3><ul>" +
           stats.quizHistory
             .map(entry => {
-              const parsedEntry = typeof entry === 'string' ? JSON.parse(entry) : entry;
+              const parsedEntry = typeof entry === "string" ? JSON.parse(entry) : entry;
               return `
                 <li>
                   <span>${parsedEntry.module}:</span>
@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   } catch (error) {
     console.error("Error loading profile:", error);
+    showNotification("Gagal memuat data profil.", "error");
   }
 
   const avatarUpload = document.getElementById("avatarUpload");
@@ -64,23 +65,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       reader.onload = async (e) => {
         resizeImage(e.target.result, 200, 200, async (resizedData) => {
           profileImage.src = resizedData;
-          
           try {
             const response = await apiFetch("/profile", {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              method: "PUT",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
               body: new URLSearchParams({
                 avatar: resizedData,
-                bio: document.getElementById("profileBio").value
-              })
+                bio: document.getElementById("profileBio").value,
+              }),
             });
 
             if (response.ok) {
               showNotification("Avatar berhasil diperbarui!", "success");
+            } else {
+              showNotification("Gagal memperbarui avatar.", "error");
             }
           } catch (error) {
             console.error("Error updating avatar:", error);
-            showNotification("Gagal memperbarui avatar.", "error");
+            showNotification("⚠️ Terjadi kesalahan saat update avatar.", "error");
           }
         });
       };
@@ -91,20 +93,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   const profileForm = document.getElementById("profileForm");
   profileForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    
+
     const name = document.getElementById("profileName").value;
     const bio = document.getElementById("profileBio").value;
     const currentAvatar = profileImage.src;
 
     try {
       const response = await apiFetch("/profile", {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        method: "PUT",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
           full_name: name,
           bio: bio,
-          avatar: currentAvatar
-        })
+          avatar: currentAvatar,
+        }),
       });
 
       if (response.ok) {
@@ -114,7 +116,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      showNotification("Terjadi kesalahan saat memperbarui profil.", "error");
+      showNotification("⚠️ Terjadi kesalahan saat memperbarui profil.", "error");
     }
   });
 
@@ -123,10 +125,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     img.onload = () => {
       let canvas = document.createElement("canvas");
       let ctx = canvas.getContext("2d");
-
       let width = img.width;
       let height = img.height;
-
       if (width > height) {
         if (width > maxWidth) {
           height = Math.round((height *= maxWidth / width));
@@ -138,13 +138,27 @@ document.addEventListener("DOMContentLoaded", async () => {
           height = maxHeight;
         }
       }
-
       canvas.width = width;
       canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
-
       callback(canvas.toDataURL("image/jpeg", 0.8));
     };
     img.src = base64Str;
   }
 });
+
+function showNotification(message, type = "success") {
+  const existing = document.querySelector(".toast");
+  if (existing) existing.remove();
+
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  setTimeout(() => toast.classList.add("show"), 100);
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}

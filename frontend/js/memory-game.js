@@ -4,13 +4,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const timerDisplay = document.getElementById("timer");
   const resetBtn = document.getElementById("resetGameBtn");
   const exitPageBtn = document.getElementById("exitPageBtn");
-
   const resultModal = document.getElementById("gameResultModal");
   const closeResultBtn = document.getElementById("closeResult");
   const playAgainBtn = document.getElementById("playAgainBtn");
   const exitGameBtn = document.getElementById("exitGameBtn");
   const finalMovesSpan = document.getElementById("finalMoves");
   const finalTimeSpan = document.getElementById("finalTime");
+
+  const bgMusic = new Audio("../assets/game-music.mp3");
+  const flipSound = new Audio("../assets/flip.mp3");
+  const winSound = new Audio("../assets/game-over.mp3");
+
+  bgMusic.loop = true;
+  bgMusic.volume = 0.8;
+  flipSound.volume = 1.0;
+  winSound.volume = 1.0;
+
+  const enableAudio = () => {
+    bgMusic.play().catch(() => {});
+    document.removeEventListener("click", enableAudio);
+  };
+  document.addEventListener("click", enableAudio);
 
   const cardConcepts = [
     { name: "Pancasila" },
@@ -29,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let firstCard = null, secondCard = null;
   let moves = 0;
   let pairsFound = 0;
-
   let timer = 0;
   let timerInterval = null;
 
@@ -46,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     timerInterval = setInterval(() => {
       timer++;
       timerDisplay.textContent = `Time: ${timer}s`;
+      saveProgress();
     }, 1000);
   }
 
@@ -80,20 +94,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     startTimer();
+    saveProgress();
+    if (bgMusic.paused) bgMusic.play().catch(() => {});
   }
 
   function onCardClick(){
     if (lockBoard) return;
     if (this === firstCard) return;
-
+    flipSound.currentTime = 0;
+    flipSound.play();
     this.classList.add("flip");
-
     if (!hasFlipped){
       hasFlipped = true;
       firstCard = this;
       return;
     }
-
     secondCard = this;
     checkMatch();
   }
@@ -101,13 +116,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function checkMatch(){
     moves++;
     movesDisplay.textContent = `Moves: ${moves}`;
-
+    saveProgress();
     const match = firstCard.dataset.name === secondCard.dataset.name;
-    if (match) {
-      disableCards();
-    } else {
-      unflipCards();
-    }
+    if (match) disableCards();
+    else unflipCards();
   }
 
   function disableCards(){
@@ -116,11 +128,9 @@ document.addEventListener("DOMContentLoaded", () => {
     firstCard.classList.add("matched");
     secondCard.classList.add("matched");
     pairsFound++;
+    saveProgress();
     resetTurn();
-
-    if (pairsFound === cardConcepts.length){
-      endGame();
-    }
+    if (pairsFound === cardConcepts.length) endGame();
   }
 
   function unflipCards(){
@@ -137,16 +147,55 @@ document.addEventListener("DOMContentLoaded", () => {
     [firstCard, secondCard] = [null, null];
   }
 
-  function endGame(){
+  async function saveProgress(){
+    try {
+      await apiFetch("/games/memory-progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          moves: moves,
+          time: timer,
+          pairsFound: pairsFound,
+          isCompleted: pairsFound === cardConcepts.length ? "true" : "false"
+        })
+      });
+    } catch (error) {
+      console.error("Gagal menyimpan progress:", error);
+    }
+  }
+
+  async function endGame(){
     stopTimer();
     finalMovesSpan.textContent = moves;
     finalTimeSpan.textContent = `${timer}s`;
     resultModal.classList.remove("hidden");
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+    winSound.currentTime = 0;
+    winSound.play();
+    try {
+      await apiFetch("/games/memory-complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          moves: moves,
+          time: timer,
+          status: "completed"
+        })
+      });
+    } catch (error) {
+      console.error("Gagal menyimpan data selesai:", error);
+    }
   }
 
-  resetBtn.addEventListener("click", createBoard);
+  resetBtn.addEventListener("click", () => {
+    createBoard();
+    bgMusic.currentTime = 0;
+    bgMusic.play();
+  });
 
   exitPageBtn.addEventListener("click", () => {
+    bgMusic.pause();
     window.location.href = "games.html";
   });
 
@@ -157,9 +206,12 @@ document.addEventListener("DOMContentLoaded", () => {
   playAgainBtn.addEventListener("click", () => {
     resultModal.classList.add("hidden");
     createBoard();
+    bgMusic.currentTime = 0;
+    bgMusic.play();
   });
 
   exitGameBtn.addEventListener("click", () => {
+    bgMusic.pause();
     window.location.href = "games.html";
   });
 
