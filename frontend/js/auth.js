@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const BASE_URL = "https://civicaweb-production.up.railway.app";
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
   const logoutButton = document.getElementById("logoutButton");
