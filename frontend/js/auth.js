@@ -20,10 +20,11 @@ document.addEventListener("DOMContentLoaded", () => {
   async function apiFetch(endpoint, options = {}) {
     const token = getToken()
     const headers = {
-      "Content-Type": "application/json",
       ...(options.headers || {}),
+      "Content-Type": options.body instanceof FormData ? undefined : "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     }
+
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...options,
       headers,
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("currentUser", JSON.stringify(user))
         return user
       } else {
-        clearAuth()
+        console.warn("User fetch failed:", response.status)
         return null
       }
     } catch (error) {
@@ -110,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await response.json()
         if (response.ok) {
           setToken(data.access_token)
+          await new Promise(r => setTimeout(r, 300))
           await getCurrentUser()
           showNotification("Login berhasil!", "success")
           setTimeout(() => (window.location.href = "dashboard.html"), 1500)
@@ -134,8 +136,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const protectedPages = ["dashboard.html", "profile.html", "modules.html", "quiz.html", "games.html"]
   const currentPage = window.location.pathname.split("/").pop()
-  if (protectedPages.includes(currentPage) && !getToken() && !["login.html", "register.html"].includes(currentPage)) {
-    showNotification("Sesi login kamu habis atau belum login.", "error")
-    setTimeout(() => (window.location.href = "login.html"), 1500)
+
+  async function verifySession() {
+    const token = getToken()
+    if (!token) {
+      showNotification("Anda harus login terlebih dahulu.", "error")
+      setTimeout(() => (window.location.href = "login.html"), 1000)
+      return
+    }
+    try {
+      const response = await apiFetch("/users/me")
+      if (!response.ok) {
+        clearAuth()
+        showNotification("Sesi login kamu telah berakhir.", "error")
+        setTimeout(() => (window.location.href = "login.html"), 1000)
+      }
+    } catch {
+      showNotification("Terjadi kesalahan jaringan, coba lagi.", "error")
+    }
+  }
+
+  if (protectedPages.includes(currentPage) && !["login.html", "register.html"].includes(currentPage)) {
+    setTimeout(verifySession, 500)
   }
 })
