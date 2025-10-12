@@ -177,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (timeLeft <= 0) {
         clearInterval(timerInterval);
         stopQuizSound();
-        showToast("⌛ Waktu Habis!", true);
+        showToast("⏱️ Waktu Habis!", true);
         loseSound.currentTime = 0;
         loseSound.play();
         gameOver();
@@ -246,6 +246,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             highScoreSpan.textContent = highScore;
           }
         }
+
+        const statsResponse = await apiFetch("/stats");
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json();
+          const currentGamesPlayed = stats.gamesPlayed || 0;
+          
+          await apiFetch("/stats", {
+            method: "PUT",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              gamesPlayed: currentGamesPlayed + 1
+            })
+          });
+        }
+
+        const collectionItem = `Wheel of Fortune - Skor ${currentScore} (${new Date().toLocaleDateString()})`;
+        await apiFetch("/stats/gamification", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({
+            item: collectionItem
+          })
+        });
+
       } catch (error) {
         console.error("Error saving game score:", error);
         showNotification("Gagal menyimpan score.", "error");

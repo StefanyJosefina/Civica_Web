@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const quizTitle = document.getElementById("quizTitle")
   const questionContainer = document.getElementById("questionContainer")
   const submitQuizButton = document.getElementById("submitQuiz")
@@ -216,20 +216,79 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (correct) {
       score++
-      alert("Jawaban benar!")
+      showNotification("Jawaban benar!", "success")
     } else {
-      alert("Jawaban salah!")
+      showNotification("Jawaban salah!", "error")
     }
   }
 
-  function showResult() {
+  async function showResult() {
     const finalScore = (score / currentQuiz.length) * 100
+    const moduleTitle = modules.find((m) => m.id == moduleId).title
+
     quizResultDiv.style.display = "block"
     quizResultDiv.innerHTML = `
       <h3>Quiz Selesai!</h3>
       <p>Skor Anda: ${score} dari ${currentQuiz.length}</p>
       <p>Persentase: ${finalScore.toFixed(2)}%</p>
+      <p>Menyimpan hasil...</p>
     `
-    setTimeout(() => { window.location.href = "modules.html" }, 3000)
+
+    try {
+      const response = await apiFetch("/stats/quiz-history", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          module: moduleTitle,
+          score: finalScore.toFixed(2),
+          date: new Date().toISOString()
+        })
+      })
+
+      if (response.ok) {
+        const statsResponse = await apiFetch("/stats")
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json()
+          
+          let totalScore = 0
+          let quizCount = 0
+          
+          if (stats.quizHistory && stats.quizHistory.length > 0) {
+            stats.quizHistory.forEach(entry => {
+              const parsedEntry = typeof entry === "string" ? JSON.parse(entry) : entry
+              totalScore += parseFloat(parsedEntry.score)
+              quizCount++
+            })
+          }
+          
+          const avgScore = quizCount > 0 ? (totalScore / quizCount).toFixed(2) : finalScore.toFixed(2)
+          
+          await apiFetch("/stats", {
+            method: "PUT",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+              avgQuizScore: avgScore
+            })
+          })
+        }
+
+        showNotification("Hasil quiz berhasil disimpan!", "success")
+        quizResultDiv.innerHTML = `
+          <h3>Quiz Selesai!</h3>
+          <p>Skor Anda: ${score} dari ${currentQuiz.length}</p>
+          <p>Persentase: ${finalScore.toFixed(2)}%</p>
+          <p>✅ Hasil berhasil disimpan!</p>
+        `
+      } else {
+        showNotification("Gagal menyimpan hasil quiz.", "error")
+      }
+    } catch (error) {
+      console.error("Error saving quiz result:", error)
+      showNotification("Terjadi kesalahan saat menyimpan hasil.", "error")
+    }
+
+    setTimeout(() => { 
+      window.location.href = "modules.html" 
+    }, 3000)
   }
 })

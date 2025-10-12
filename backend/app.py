@@ -13,14 +13,13 @@ from models import User, Progress, Simulation, UserProfile, UserStats
 SECRET_KEY = "supersecret"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 app = FastAPI(title="Civica Virtual Lab API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,17 +30,13 @@ def on_startup():
     Base.metadata.create_all(bind=engine)
 
 def hash_password(password: str) -> str:
-    """Hash password using bcrypt"""
-    password_bytes = password.encode('utf-8')
+    password_bytes = password.encode("utf-8")
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password_bytes, salt)
-    return hashed.decode('utf-8')
+    return hashed.decode("utf-8")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify password against hashed password"""
-    password_bytes = plain_password.encode('utf-8')
-    hashed_bytes = hashed_password.encode('utf-8')
-    return bcrypt.checkpw(password_bytes, hashed_bytes)
+    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 def create_token(user_id: int, email: str):
     exp = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -68,45 +63,27 @@ def health():
     return {"status": "ok"}
 
 @app.post("/auth/register")
-def register(
-    email: str = Form(...), 
-    password: str = Form(...), 
-    full_name: str = Form(None), 
-    db: Session = Depends(get_session)
-):
-    if not password or len(password.strip()) == 0:
+def register(email: str = Form(...), password: str = Form(...), full_name: str = Form(None), db: Session = Depends(get_session)):
+    if not password.strip():
         raise HTTPException(status_code=400, detail="Password cannot be empty")
-    
     if len(password) > 72:
         raise HTTPException(status_code=400, detail="Password is too long (max 72 characters)")
-    
     if db.query(User).filter(User.email == email).first():
         raise HTTPException(status_code=400, detail="Email already registered")
-    
     hashed_password = hash_password(password)
-    
     user = User(email=email, full_name=full_name, hashed_password=hashed_password)
     db.add(user)
     db.commit()
     db.refresh(user)
-
-    if not db.query(UserProfile).filter(UserProfile.user_id == user.id).first():
-        db.add(UserProfile(user_id=user.id))
-    if not db.query(UserStats).filter(UserStats.user_id == user.id).first():
-        db.add(UserStats(user_id=user.id))
+    db.add_all([UserProfile(user_id=user.id), UserStats(user_id=user.id)])
     db.commit()
-
     return {"message": "registered", "email": user.email}
 
 @app.post("/auth/login")
 def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == form.username).first()
-    if not user:
+    if not user or not verify_password(form.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    if not verify_password(form.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    
     token = create_token(user.id, user.email)
     return {"access_token": token, "token_type": "bearer"}
 
@@ -132,13 +109,7 @@ def get_profile(user: User = Depends(current_user), db: Session = Depends(get_se
     return {"bio": up.bio, "avatar": up.avatar}
 
 @app.put("/profile")
-def update_profile(
-    bio: str = Form(""), 
-    avatar: str = Form("/placeholder.svg?key=9fgsv"),
-    full_name: str = Form(None),
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
+def update_profile(bio: str = Form(""), avatar: str = Form("/placeholder.svg?key=9fgsv"), full_name: str = Form(None), user: User = Depends(current_user), db: Session = Depends(get_session)):
     up = db.query(UserProfile).filter(UserProfile.user_id == user.id).first()
     if not up:
         up = UserProfile(user_id=user.id)
@@ -175,14 +146,7 @@ def get_stats(user: User = Depends(current_user), db: Session = Depends(get_sess
     }
 
 @app.put("/stats")
-def put_stats(
-    modulesCompleted: int = Form(None),
-    avgQuizScore: float = Form(None),
-    gamesPlayed: int = Form(None),
-    highestGameScore: str = Form(None),
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
+def put_stats(modulesCompleted: int = Form(None), avgQuizScore: float = Form(None), gamesPlayed: int = Form(None), highestGameScore: str = Form(None), user: User = Depends(current_user), db: Session = Depends(get_session)):
     s = ensure_stats(db, user.id)
     if modulesCompleted is not None:
         s.modulesCompleted = modulesCompleted
@@ -196,149 +160,56 @@ def put_stats(
     db.commit()
     return {"message": "stats updated"}
 
-@app.post("/stats/quiz-history")
-def add_quiz_history(
-    item: str = Form(...), 
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
-    s = ensure_stats(db, user.id)
-    arr = json.loads(s.quizHistory_json or "[]")
-    arr.append(item)
-    s.quizHistory_json = json.dumps(arr)
-    db.add(s)
-    db.commit()
-    return {"message": "added"}
-
 @app.post("/stats/gamification")
-def add_gamification(
-    item: str = Form(...), 
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
+def add_gamification(item: str = Form(...), user: User = Depends(current_user), db: Session = Depends(get_session)):
     s = ensure_stats(db, user.id)
     arr = json.loads(s.gamificationCollection_json or "[]")
     arr.append(item)
     s.gamificationCollection_json = json.dumps(arr)
     db.add(s)
     db.commit()
-    return {"message": "added"}
+    db.refresh(s)
+    return {"message": "Gamification item added successfully"}
 
-@app.post("/stats/completed-modules")
-def add_completed_module(
-    module: str = Form(...), 
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
+@app.post("/games/memory-progress")
+def save_memory_progress(moves: int = Form(...), time: int = Form(...), pairsFound: int = Form(...), isCompleted: str = Form(...), user: User = Depends(current_user), db: Session = Depends(get_session)):
     s = ensure_stats(db, user.id)
-    arr = json.loads(s.completedModules_json or "[]")
-    if module not in arr:
-        arr.append(module)
-        s.completedModules_json = json.dumps(arr)
-        db.add(s)
-        db.commit()
-    return {"message": "added"}
+    s.gamesPlayed = s.gamesPlayed or 0
+    if isCompleted == "true":
+        s.gamesPlayed += 1
+        try:
+            current_high = 0 if s.highestGameScore in (None, "", "N/A") else int(s.highestGameScore)
+        except:
+            current_high = 0
+        if pairsFound > current_high:
+            s.highestGameScore = str(pairsFound)
+    db.add(s)
+    db.commit()
+    print(f"Memory progress saved: moves={moves}, time={time}, pairs={pairsFound}, user={user.email}")
+    return {"message": "Progress saved successfully", "gamesPlayed": s.gamesPlayed}
+
+@app.post("/games/memory-complete")
+def memory_game_complete(moves: int = Form(...), time: int = Form(...), status: str = Form(...), user: User = Depends(current_user), db: Session = Depends(get_session)):
+    s = ensure_stats(db, user.id)
+    s.gamesPlayed = (s.gamesPlayed or 0) + 1
+    db.add(s)
+    db.commit()
+    db.refresh(s)
+    print(f"Memory game completed: user={user.email}, moves={moves}, time={time}")
+    return {"message": "Game completion saved successfully"}
 
 @app.post("/games/highscore")
-def update_highscore(
-    score: int = Form(...), 
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
+def update_highscore(score: int = Form(...), user: User = Depends(current_user), db: Session = Depends(get_session)):
     s = ensure_stats(db, user.id)
     try:
-        current_high = 0 if s.highestGameScore == "N/A" else int(s.highestGameScore)
+        current_high = 0 if s.highestGameScore in (None, "", "N/A") else int(s.highestGameScore)
     except:
         current_high = 0
     if score > current_high:
         s.highestGameScore = str(score)
-    s.gamesPlayed += 1
+    s.gamesPlayed = (s.gamesPlayed or 0) + 1
     db.add(s)
     db.commit()
-    return {"message": "game stats updated", "highestGameScore": s.highestGameScore, "gamesPlayed": s.gamesPlayed}
-
-@app.post("/progress")
-def save_progress(
-    module: str = Form(...), 
-    step: int = Form(...), 
-    percent: float = Form(...),
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
-    row = db.query(Progress).filter(
-        Progress.user_id == user.id, 
-        Progress.module == module
-    ).first()
-    if row:
-        row.step = step
-        row.percent = percent
-        row.updated_at = datetime.utcnow()
-    else:
-        row = Progress(user_id=user.id, module=module, step=step, percent=percent)
-        db.add(row)
-    db.commit()
-    db.refresh(row)
-    return {
-        "id": row.id,
-        "user_id": row.user_id,
-        "module": row.module,
-        "step": row.step,
-        "percent": row.percent,
-        "updated_at": row.updated_at.isoformat()
-    }
-
-@app.get("/progress")
-def list_progress(user: User = Depends(current_user), db: Session = Depends(get_session)):
-    rows = db.query(Progress).filter(Progress.user_id == user.id).all()
-    return [
-        {
-            "id": row.id,
-            "module": row.module,
-            "step": row.step,
-            "percent": row.percent,
-            "updated_at": row.updated_at.isoformat()
-        }
-        for row in rows
-    ]
-
-@app.post("/simulations")
-def save_simulation(
-    module: str = Form(...), 
-    score: float = Form(...), 
-    attempt: int = Form(1),
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
-    sim = Simulation(user_id=user.id, module=module, score=score, attempt=attempt)
-    db.add(sim)
-    db.commit()
-    db.refresh(sim)
-    return {
-        "id": sim.id,
-        "user_id": sim.user_id,
-        "module": sim.module,
-        "score": sim.score,
-        "attempt": sim.attempt,
-        "created_at": sim.created_at.isoformat()
-    }
-
-@app.get("/simulations")
-def list_simulations(
-    module: str = None, 
-    user: User = Depends(current_user), 
-    db: Session = Depends(get_session)
-):
-    query = db.query(Simulation).filter(Simulation.user_id == user.id)
-    if module:
-        query = query.filter(Simulation.module == module)
-    sims = query.order_by(Simulation.created_at.desc()).all()
-    return [
-        {
-            "id": sim.id,
-            "module": sim.module,
-            "score": sim.score,
-            "attempt": sim.attempt,
-            "created_at": sim.created_at.isoformat()
-        }
-        for sim in sims
-    ]
+    db.refresh(s)
+    print(f"Highscore updated: user={user.email}, score={score}")
+    return {"message": "High score saved successfully", "highestGameScore": s.highestGameScore}
