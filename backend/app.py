@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Depends, HTTPException, status, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -10,7 +11,7 @@ import json
 from database import get_session, init_db, Base, engine
 from models import User, Progress, Simulation, UserProfile, UserStats
 
-SECRET_KEY = "supersecret"
+SECRET_KEY = os.getenv("SECRET_KEY", "supersecret")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -19,7 +20,7 @@ app = FastAPI(title="Civica Virtual Lab API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500", "*"],
+    allow_origins=["http://127.0.0.1:5500", "http://localhost:5500", "https://*.railway.app", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
