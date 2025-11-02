@@ -114,10 +114,11 @@ document.addEventListener("DOMContentLoaded", () => {
           setToken(data.access_token)
           await new Promise(r => setTimeout(r, 300))
           await getCurrentUser()
-          if (user && user.email) {
-            localStorage.setItem("userEmail", user.email)
-            }
+          if (!user || !user.email) {
+            user = { email: email } 
+          }
 
+          localStorage.setItem("userEmail", user.email)
           showNotification("Login berhasil!", "success")
           setTimeout(() => (window.location.href = "dashboard.html"), 1500)
         } else {
