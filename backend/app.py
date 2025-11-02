@@ -46,8 +46,17 @@ def create_token(user_id: int, email: str):
 
 def decode_token(token: str):
     try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        exp = decoded.get("exp")
+        if exp and datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(timezone.utc):
+            print("Token expired, ignoring old token.")
+            return None
+        return decoded
+    except jwt.ExpiredSignatureError:
+        print("Token kadaluarsa.")
+        return None
     except JWTError:
+        print("Token rusak atau invalid.")
         return None
 
 def current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_session)) -> User:
@@ -83,10 +92,38 @@ def register(email: str = Form(...), password: str = Form(...), full_name: str =
 @app.post("/auth/login")
 def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_session)):
     user = db.query(User).filter(User.email == form.username).first()
-    if not user or not verify_password(form.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Email tidak ditemukan."
+        )
+
+    if not verify_password(form.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Password salah."
+        )
+
     token = create_token(user.id, user.email)
-    return {"access_token": token, "token_type": "bearer"}
+
+    try:
+        if hasattr(user, "last_login"):
+            user.last_login = datetime.now(timezone.utc)
+            db.add(user)
+            db.commit()
+    except Exception as e:
+        print("Gagal update last_login:", e)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name
+        }
+    }
 
 @app.get("/users/me")
 def me(user: User = Depends(current_user), db: Session = Depends(get_session)):
