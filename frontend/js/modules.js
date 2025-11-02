@@ -127,7 +127,37 @@ function handleReadModule(e) {
   moduleProgress[moduleId].read = true;
   saveProgress();
 
+  syncProgressToServer();
+
   window.location.href = `module-viewer.html?module=${moduleId}&pdf=${encodeURIComponent(pdfPath)}`;
+}
+
+async function syncProgressToServer() {
+  try {
+    const completedCount = Object.values(moduleProgress)
+      .filter(m => m.read)
+      .length;
+
+    const quizScores = Object.values(moduleProgress)
+      .filter(m => m.quizCompleted)
+      .map(m => m.quizScore);
+
+    const avgQuizScore = quizScores.length
+      ? (quizScores.reduce((a, b) => a + b, 0) / quizScores.length).toFixed(1)
+      : 0;
+
+    await apiFetch("/stats", {
+      method: "PUT",
+      body: new URLSearchParams({
+        modulesCompleted: completedCount,
+        avgQuizScore: avgQuizScore
+      })
+    });
+
+    console.log("Progress tersinkron ke server:", completedCount, avgQuizScore);
+  } catch (err) {
+    console.error("Gagal sinkron ke server:", err);
+  }
 }
 
 function handleStartQuiz(e) {

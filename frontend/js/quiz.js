@@ -222,55 +222,92 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   async function showResult() {
-    const finalScore = (score / currentQuiz.length) * 100
-    const moduleInfo = modules.find((m) => m.id === moduleId)
+  const finalScore = (score / currentQuiz.length) * 100;
+  const moduleInfo = modules.find((m) => m.id === moduleId);
 
-    quizResultDiv.style.display = "block"
-    quizResultDiv.innerHTML = `
-      <div class="result-container">
-        <h3>🎉 Quiz Selesai!</h3>
-        <div class="score-display">
-          <p class="score-number">${score}/${currentQuiz.length}</p>
-          <p class="score-percentage">${finalScore.toFixed(0)}%</p>
-        </div>
-        <p class="result-message">${finalScore >= 70 ? '✓ Selamat! Anda lulus quiz ini.' : '✗ Anda belum lulus. Coba lagi untuk hasil lebih baik.'}</p>
-        <p class="saving-message">Menyimpan hasil...</p>
+  quizResultDiv.style.display = "block";
+  quizResultDiv.innerHTML = `
+    <div class="result-container">
+      <h3>Quiz Selesai!</h3>
+      <div class="score-display">
+        <p class="score-number">${score}/${currentQuiz.length}</p>
+        <p class="score-percentage">${finalScore.toFixed(0)}%</p>
       </div>
-    `
+      <p class="result-message">
+        ${finalScore >= 70
+          ? "✓ Selamat! Anda lulus quiz ini."
+          : "✗ Anda belum lulus. Coba lagi untuk hasil lebih baik."}
+      </p>
+      <p class="saving-message">Menyimpan hasil...</p>
+    </div>
+  `;
 
-    submitQuizButton.style.display = "none"
-    questionContainer.style.display = "none"
+  submitQuizButton.style.display = "none";
+  questionContainer.style.display = "none";
 
-    try {
-      const progressData = sessionStorage.getItem('civica_module_progress')
-      let moduleProgress = progressData ? JSON.parse(progressData) : {}
-      
-      if (!moduleProgress[moduleId]) {
-        moduleProgress[moduleId] = {}
-      }
-      
-      moduleProgress[moduleId].quizCompleted = true
-      moduleProgress[moduleId].quizScore = finalScore.toFixed(0)
-      
-      sessionStorage.setItem('civica_module_progress', JSON.stringify(moduleProgress))
-      
-      showNotification("Hasil quiz berhasil disimpan!", "success")
-      
-      quizResultDiv.querySelector('.saving-message').innerHTML = '✓ Hasil berhasil disimpan!'
-      
-      setTimeout(() => { 
-        window.location.href = "modules.html" 
-      }, 3000)
-      
-    } catch (error) {
-      console.error("Error saving quiz result:", error)
-      showNotification("Terjadi kesalahan saat menyimpan hasil.", "error")
-      
-      setTimeout(() => { 
-        window.location.href = "modules.html" 
-      }, 3000)
+  try {
+    const progressData = sessionStorage.getItem("civica_module_progress");
+    let moduleProgress = progressData ? JSON.parse(progressData) : {};
+
+    if (!moduleProgress[moduleId]) {
+      moduleProgress[moduleId] = {};
     }
+
+    moduleProgress[moduleId].quizCompleted = true;
+    moduleProgress[moduleId].quizScore = finalScore.toFixed(0);
+    sessionStorage.setItem(
+      "civica_module_progress",
+      JSON.stringify(moduleProgress)
+    );
+
+    await syncQuizResultToServer(finalScore);
+
+    showNotification("Hasil quiz berhasil disimpan!", "success");
+    quizResultDiv.querySelector(".saving-message").innerHTML =
+      "Hasil berhasil disimpan!";
+
+    setTimeout(() => {
+      window.location.href = "modules.html";
+    }, 3000);
+  } catch (error) {
+    console.error("Error saving quiz result:", error);
+    showNotification("Terjadi kesalahan saat menyimpan hasil.", "error");
+
+    setTimeout(() => {
+      window.location.href = "modules.html";
+    }, 3000);
   }
+}
+
+async function syncQuizResultToServer(score) {
+  try {
+    const res = await apiFetch("/stats");
+    const stats = await res.json();
+
+    const progressData = sessionStorage.getItem("civica_module_progress");
+    let moduleProgress = progressData ? JSON.parse(progressData) : {};
+    const quizScores = Object.values(moduleProgress)
+      .filter((m) => m.quizCompleted)
+      .map((m) => Number(m.quizScore));
+
+    const avgQuizScore = quizScores.length
+      ? (quizScores.reduce((a, b) => a + b, 0) / quizScores.length).toFixed(1)
+      : score;
+
+    await apiFetch("/stats", {
+      method: "PUT",
+      body: new URLSearchParams({
+        avgQuizScore: avgQuizScore,
+      }),
+    });
+
+    console.log(
+      `Skor quiz dikirim ke server: ${score}% (rata-rata ${avgQuizScore}%)`
+    );
+  } catch (error) {
+    console.error("Gagal mengirim hasil quiz ke server:", error);
+  }
+}
 
   function showNotification(message, type) {
     const notification = document.createElement('div')
