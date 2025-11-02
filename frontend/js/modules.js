@@ -10,6 +10,13 @@ const modules = [
   { id: 9, title: "Hak dan Kewajiban Negara dan Warga Negara serta Hak Asasi Manusia", pdf: "../assets/7.2.Hak dan Kewajiban Negara dan Warga Negara serta Hak Asasi Manusia .pptx.pdf" }
 ];
 
+const API_BASE_URL = "https://civicaweb-production.up.railway.app";
+const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "login.html";
+}
+
 let moduleProgress = {};
 
 function loadProgress() {
@@ -133,6 +140,8 @@ function handleReadModule(e) {
 }
 
 async function syncProgressToServer() {
+  if (!token) return;
+
   try {
     const completedCount = Object.values(moduleProgress)
       .filter(m => m.read)
@@ -146,15 +155,19 @@ async function syncProgressToServer() {
       ? (quizScores.reduce((a, b) => a + b, 0) / quizScores.length).toFixed(1)
       : 0;
 
-    await apiFetch("/stats", {
+    await fetch(`${API_BASE_URL}/stats`, {
       method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
       body: new URLSearchParams({
         modulesCompleted: completedCount,
-        avgQuizScore: avgQuizScore
-      })
+        avgQuizScore: avgQuizScore,
+      }),
     });
 
-    console.log("Progress tersinkron ke server:", completedCount, avgQuizScore);
+    console.log(`Progress dikirim ke server: ${completedCount} modul, rata-rata ${avgQuizScore}%`);
   } catch (err) {
     console.error("Gagal sinkron ke server:", err);
   }

@@ -1,9 +1,21 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const defaultAvatar = "../assets/profile.jpg";
+  const API_BASE_URL = "https://civicaweb-production.up.railway.app";
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    window.location.href = "login.html";
+    return;
+  }
 
   try {
-    const userResponse = await apiFetch("/users/me");
-    const statsResponse = await apiFetch("/stats");
+    const userResponse = await fetch(`${API_BASE_URL}/users/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const statsResponse = await fetch(`${API_BASE_URL}/stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     if (userResponse.ok && statsResponse.ok) {
       const currentUser = await userResponse.json();
@@ -11,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       const userNameEl = document.getElementById("dashboardUserName");
       const userEmailEl = document.getElementById("dashboardUserEmail");
-      
+
       if (userNameEl) userNameEl.textContent = `Halo, ${currentUser.full_name || ""}!`;
       if (userEmailEl) userEmailEl.textContent = currentUser.email || "";
 
@@ -20,16 +32,18 @@ document.addEventListener("DOMContentLoaded", async () => {
       const gamesPlayed = stats.gamesPlayed || 0;
       const highestGameScore = stats.highestGameScore || "N/A";
 
-      if (document.getElementById("modulesCompleted"))
-        document.getElementById("modulesCompleted").textContent = modulesCompleted;
-      if (document.getElementById("avgQuizScore"))
-        document.getElementById("avgQuizScore").textContent = `${avgQuizScore}%`;
-      if (document.querySelector(".progress-bar"))
-        document.querySelector(".progress-bar").style.width = `${(modulesCompleted / 9) * 100}%`;
-      if (document.getElementById("gamesPlayed"))
-        document.getElementById("gamesPlayed").textContent = gamesPlayed;
-      if (document.getElementById("highestGameScore"))
-        document.getElementById("highestGameScore").textContent = highestGameScore;
+      const modulesCompletedEl = document.getElementById("modulesCompleted");
+      const avgQuizScoreEl = document.getElementById("avgQuizScore");
+      const gamesPlayedEl = document.getElementById("gamesPlayed");
+      const highestGameScoreEl = document.getElementById("highestGameScore");
+      const progressBar = document.querySelector(".progress-bar");
+
+      if (modulesCompletedEl) modulesCompletedEl.textContent = modulesCompleted;
+      if (avgQuizScoreEl) avgQuizScoreEl.textContent = `${avgQuizScore}%`;
+      if (gamesPlayedEl) gamesPlayedEl.textContent = gamesPlayed;
+      if (highestGameScoreEl) highestGameScoreEl.textContent = highestGameScore;
+      if (progressBar)
+        progressBar.style.width = `${(modulesCompleted / 9) * 100}%`;
 
       const profileAvatar = document.querySelector(".profile-summary .profile-avatar");
       if (profileAvatar) {
@@ -39,6 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
       }
     } else {
+      console.error("Gagal memuat data dashboard:", userResponse.status, statsResponse.status);
       window.location.href = "login.html";
     }
   } catch (error) {

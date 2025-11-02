@@ -12,6 +12,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search)
   const moduleId = parseInt(urlParams.get("module"))
 
+  const API_BASE_URL = "https://civicaweb-production.up.railway.app";
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    window.location.href = "login.html";
+    return;
+  }
+
   const modules = [
     { id: 1, title: "Filsafat Pancasila" },
     { id: 2, title: "Pancasila sebagai Filsafat dan Ideologi Negara" },
@@ -280,32 +288,32 @@ document.addEventListener("DOMContentLoaded", async () => {
 }
 
 async function syncQuizResultToServer(score) {
+  if (!token) return;
+
+  const progressData = sessionStorage.getItem("civica_module_progress");
+  let moduleProgress = progressData ? JSON.parse(progressData) : {};
+  const quizScores = Object.values(moduleProgress)
+    .filter(m => m.quizCompleted)
+    .map(m => Number(m.quizScore));
+
+  const avgQuizScore = quizScores.length
+    ? (quizScores.reduce((a, b) => a + b, 0) / quizScores.length).toFixed(1)
+    : score;
+
   try {
-    const res = await apiFetch("/stats");
-    const stats = await res.json();
-
-    const progressData = sessionStorage.getItem("civica_module_progress");
-    let moduleProgress = progressData ? JSON.parse(progressData) : {};
-    const quizScores = Object.values(moduleProgress)
-      .filter((m) => m.quizCompleted)
-      .map((m) => Number(m.quizScore));
-
-    const avgQuizScore = quizScores.length
-      ? (quizScores.reduce((a, b) => a + b, 0) / quizScores.length).toFixed(1)
-      : score;
-
-    await apiFetch("/stats", {
+    await fetch(`${API_BASE_URL}/stats`, {
       method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
       body: new URLSearchParams({
         avgQuizScore: avgQuizScore,
       }),
     });
-
-    console.log(
-      `Skor quiz dikirim ke server: ${score}% (rata-rata ${avgQuizScore}%)`
-    );
+    console.log(`Skor rata-rata dikirim ke server: ${avgQuizScore}%`);
   } catch (error) {
-    console.error("Gagal mengirim hasil quiz ke server:", error);
+    console.error("Gagal kirim skor ke server:", error);
   }
 }
 
