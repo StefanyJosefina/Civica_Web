@@ -1,0 +1,393 @@
+openapi: 3.0.3
+info:
+  title: Civica Virtual Lab API
+  version: 0.1.0
+paths:
+  /:
+    get:
+      summary: Health
+      operationId: health__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /auth/register:
+    post:
+      summary: Register
+      operationId: register_auth_register_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_register_auth_register_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/login:
+    post:
+      summary: Login
+      operationId: login_auth_login_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_login_auth_login_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users/me:
+    get:
+      summary: Me
+      operationId: me_users_me_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+        - OAuth2PasswordBearer: []
+  /profile:
+    get:
+      summary: Get Profile
+      operationId: get_profile_profile_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+        - OAuth2PasswordBearer: []
+    put:
+      summary: Update Profile
+      operationId: update_profile_profile_put
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_update_profile_profile_put'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /stats:
+    get:
+      summary: Get Stats
+      operationId: get_stats_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+        - OAuth2PasswordBearer: []
+    put:
+      summary: Put Stats
+      operationId: put_stats_stats_put
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_put_stats_stats_put'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /stats/gamification:
+    post:
+      summary: Add Gamification
+      operationId: add_gamification_stats_gamification_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_add_gamification_stats_gamification_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /games/memory-progress:
+    post:
+      summary: Save Memory Progress
+      operationId: save_memory_progress_games_memory_progress_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_save_memory_progress_games_memory_progress_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /games/memory-complete:
+    post:
+      summary: Memory Game Complete
+      operationId: memory_game_complete_games_memory_complete_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_memory_game_complete_games_memory_complete_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+  /games/highscore:
+    post:
+      summary: Update Highscore
+      operationId: update_highscore_games_highscore_post
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Body_update_highscore_games_highscore_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - OAuth2PasswordBearer: []
+components:
+  schemas:
+    Body_add_gamification_stats_gamification_post:
+      type: object
+      required:
+        - item
+      properties:
+        item:
+          type: string
+          title: Item
+    Body_login_auth_login_post:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        grant_type:
+          type: string
+          title: Grant Type
+          description: OAuth2 grant type (usually 'password')
+          example: password
+        username:
+          type: string
+          title: Username
+        password:
+          type: string
+          title: Password
+        scope:
+          type: string
+          title: Scope
+          default: ''
+        client_id:
+          type: string
+          title: Client Id
+          nullable: true
+        client_secret:
+          type: string
+          title: Client Secret
+          nullable: true
+    Body_memory_game_complete_games_memory_complete_post:
+      type: object
+      required:
+        - moves
+        - time
+        - status
+      properties:
+        moves:
+          type: integer
+          title: Moves
+        time:
+          type: integer
+          title: Time
+        status:
+          type: string
+          title: Status
+    Body_put_stats_stats_put:
+      type: object
+      properties:
+        modulesCompleted:
+          type: integer
+          title: Modulescompleted
+        avgQuizScore:
+          type: number
+          title: Avgquizscore
+        gamesPlayed:
+          type: integer
+          title: Gamesplayed
+        highestGameScore:
+          type: string
+          title: Highestgamescore
+    Body_register_auth_register_post:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          title: Email
+        password:
+          type: string
+          title: Password
+        full_name:
+          type: string
+          title: Full Name
+    Body_save_memory_progress_games_memory_progress_post:
+      type: object
+      required:
+        - moves
+        - time
+        - pairsFound
+        - isCompleted
+      properties:
+        moves:
+          type: integer
+          title: Moves
+        time:
+          type: integer
+          title: Time
+        pairsFound:
+          type: integer
+          title: Pairs Found
+        isCompleted:
+          type: string
+          title: Is Completed
+    Body_update_highscore_games_highscore_post:
+      type: object
+      required:
+        - score
+      properties:
+        score:
+          type: integer
+          title: Score
+    Body_update_profile_profile_put:
+      type: object
+      properties:
+        bio:
+          type: string
+          title: Bio
+          default: ''
+        avatar:
+          type: string
+          title: Avatar
+          default: /placeholder.svg?key=9fgsv
+        full_name:
+          type: string
+          title: Full Name
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationError'
+    ValidationError:
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+        msg:
+          type: string
+        type:
+          type: string
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: /auth/login
+          scopes: {}
