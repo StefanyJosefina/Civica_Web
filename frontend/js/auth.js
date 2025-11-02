@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function clearAuth() {
     localStorage.removeItem("token")
     localStorage.removeItem("currentUser")
+    localStorage.removeItem("userEmail")
   }
 
   async function apiFetch(endpoint, options = {}) {
@@ -113,6 +114,10 @@ document.addEventListener("DOMContentLoaded", () => {
           setToken(data.access_token)
           await new Promise(r => setTimeout(r, 300))
           await getCurrentUser()
+          if (user && user.email) {
+            localStorage.setItem("userEmail", user.email)
+            }
+
           showNotification("Login berhasil!", "success")
           setTimeout(() => (window.location.href = "dashboard.html"), 1500)
         } else {

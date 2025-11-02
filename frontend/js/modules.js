@@ -17,30 +17,36 @@ if (!token) {
   window.location.href = "login.html";
 }
 
+function getProgressKey() {
+  const email = localStorage.getItem("userEmail") || "default";
+  return `civica_module_progress_${email}`;
+}
+
 let moduleProgress = {};
 
+// ✅ Ubah semua sessionStorage jadi localStorage dan pakai getProgressKey()
 function loadProgress() {
   try {
-    const saved = sessionStorage.getItem('civica_module_progress');
+    const saved = localStorage.getItem(getProgressKey());
     if (saved) {
       moduleProgress = JSON.parse(saved);
     }
   } catch (e) {
-    console.error('Failed to load progress:', e);
+    console.error("Failed to load progress:", e);
     moduleProgress = {};
   }
 }
 
 function saveProgress() {
   try {
-    sessionStorage.setItem('civica_module_progress', JSON.stringify(moduleProgress));
+    localStorage.setItem(getProgressKey(), JSON.stringify(moduleProgress));
   } catch (e) {
-    console.error('Failed to save progress:', e);
+    console.error("Failed to save progress:", e);
   }
 }
 
 function initializeProgress() {
-  modules.forEach(module => {
+  modules.forEach((module) => {
     if (!moduleProgress[module.id]) {
       moduleProgress[module.id] = {
         read: false,
@@ -54,7 +60,6 @@ function initializeProgress() {
 
 function isModuleUnlocked(moduleId) {
   if (moduleId === 1) return true;
-  
   const prevModule = moduleProgress[moduleId - 1];
   return prevModule && prevModule.read;
 }
@@ -65,18 +70,18 @@ function isQuizUnlocked(moduleId) {
 }
 
 function renderModules() {
-  const container = document.getElementById('modulesContainer');
-  container.innerHTML = '';
+  const container = document.getElementById("modulesContainer");
+  container.innerHTML = "";
 
-  modules.forEach(module => {
+  modules.forEach((module) => {
     const isUnlocked = isModuleUnlocked(module.id);
     const quizUnlocked = isQuizUnlocked(module.id);
     const progress = moduleProgress[module.id] || {};
 
-    const moduleCard = document.createElement('div');
-    moduleCard.className = 'module-card';
-    
-    let statusBadges = '';
+    const moduleCard = document.createElement("div");
+    moduleCard.className = "module-card";
+
+    let statusBadges = "";
     if (progress.read) {
       statusBadges += '<span class="status-badge completed">✓ Sudah Dibaca</span>';
     }
@@ -99,13 +104,13 @@ function renderModules() {
         <button class="btn btn-read" 
                 data-module-id="${module.id}" 
                 data-pdf="${module.pdf}"
-                ${!isUnlocked ? 'disabled' : ''}>
+                ${!isUnlocked ? "disabled" : ""}>
           📖 Baca Modul
         </button>
         <button class="btn btn-quiz" 
                 data-module-id="${module.id}"
-                ${!quizUnlocked ? 'disabled' : ''}>
-          ${quizUnlocked ? '📝 Mulai Quiz' : '🔒 Quiz'}
+                ${!quizUnlocked ? "disabled" : ""}>
+          ${quizUnlocked ? "📝 Mulai Quiz" : "🔒 Quiz"}
         </button>
       </div>
     `;
@@ -113,12 +118,12 @@ function renderModules() {
     container.appendChild(moduleCard);
   });
 
-  document.querySelectorAll('.btn-read').forEach(btn => {
-    btn.addEventListener('click', handleReadModule);
+  document.querySelectorAll(".btn-read").forEach((btn) => {
+    btn.addEventListener("click", handleReadModule);
   });
 
-  document.querySelectorAll('.btn-quiz').forEach(btn => {
-    btn.addEventListener('click', handleStartQuiz);
+  document.querySelectorAll(".btn-quiz").forEach((btn) => {
+    btn.addEventListener("click", handleStartQuiz);
   });
 }
 
@@ -127,7 +132,7 @@ function handleReadModule(e) {
   const pdfPath = e.currentTarget.dataset.pdf;
 
   if (!isModuleUnlocked(moduleId)) {
-    showPopup('Modul ini masih terkunci. Selesaikan modul sebelumnya terlebih dahulu.');
+    showPopup("Modul ini masih terkunci. Selesaikan modul sebelumnya terlebih dahulu.");
     return;
   }
 
@@ -144,12 +149,12 @@ async function syncProgressToServer() {
 
   try {
     const completedCount = Object.values(moduleProgress)
-      .filter(m => m.read)
+      .filter((m) => m.read)
       .length;
 
     const quizScores = Object.values(moduleProgress)
-      .filter(m => m.quizCompleted)
-      .map(m => m.quizScore);
+      .filter((m) => m.quizCompleted)
+      .map((m) => m.quizScore);
 
     const avgQuizScore = quizScores.length
       ? (quizScores.reduce((a, b) => a + b, 0) / quizScores.length).toFixed(1)
@@ -177,7 +182,7 @@ function handleStartQuiz(e) {
   const moduleId = parseInt(e.currentTarget.dataset.moduleId);
 
   if (!isQuizUnlocked(moduleId)) {
-    showPopup('Baca modul terlebih dahulu sebelum mengerjakan quiz.');
+    showPopup("Baca modul terlebih dahulu sebelum mengerjakan quiz.");
     return;
   }
 
@@ -185,24 +190,24 @@ function handleStartQuiz(e) {
 }
 
 function showPopup(message) {
-  const popup = document.getElementById('popup');
-  const popupMessage = document.getElementById('popup-message');
+  const popup = document.getElementById("popup");
+  const popupMessage = document.getElementById("popup-message");
   popupMessage.textContent = message;
-  popup.classList.remove('hidden');
+  popup.classList.remove("hidden");
 }
 
-document.getElementById('closePopup').addEventListener('click', () => {
-  document.getElementById('popup').classList.add('hidden');
+document.getElementById("closePopup").addEventListener("click", () => {
+  document.getElementById("popup").classList.add("hidden");
 });
 
-document.getElementById('logoutButton').addEventListener('click', (e) => {
+document.getElementById("logoutButton").addEventListener("click", (e) => {
   e.preventDefault();
   showLogoutConfirmation();
 });
 
 function showLogoutConfirmation() {
-  const overlay = document.createElement('div');
-  overlay.className = 'logout-overlay';
+  const overlay = document.createElement("div");
+  overlay.className = "logout-overlay";
   overlay.innerHTML = `
     <div class="logout-modal">
       <div class="logout-icon">👋</div>
@@ -214,23 +219,27 @@ function showLogoutConfirmation() {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(overlay);
-  
-  document.getElementById('cancelLogout').addEventListener('click', () => {
+
+  document.getElementById("cancelLogout").addEventListener("click", () => {
     overlay.remove();
   });
-  
-  document.getElementById('confirmLogout').addEventListener('click', () => {
+
+  document.getElementById("confirmLogout").addEventListener("click", () => {
     overlay.remove();
-    sessionStorage.clear();
-    showNotification('Berhasil logout! Sampai jumpa lagi 👋', 'success');
+
+    localStorage.removeItem(getProgressKey());
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("token");
+
+    showNotification("Berhasil logout! Sampai jumpa lagi 👋", "success");
     setTimeout(() => {
-      window.location.href = '../index.html';
+      window.location.href = "../index.html";
     }, 1000);
   });
-  
-  overlay.addEventListener('click', (e) => {
+
+  overlay.addEventListener("click", (e) => {
     if (e.target === overlay) {
       overlay.remove();
     }
@@ -238,22 +247,22 @@ function showLogoutConfirmation() {
 }
 
 function showNotification(message, type) {
-  const notification = document.createElement('div');
+  const notification = document.createElement("div");
   notification.className = `custom-notification ${type}`;
   notification.textContent = message;
   document.body.appendChild(notification);
-  
+
   setTimeout(() => {
-    notification.classList.add('show');
+    notification.classList.add("show");
   }, 100);
-  
+
   setTimeout(() => {
-    notification.classList.remove('show');
+    notification.classList.remove("show");
     setTimeout(() => notification.remove(), 300);
   }, 3000);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   loadProgress();
   initializeProgress();
   renderModules();
