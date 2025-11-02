@@ -43,11 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("currentUser", JSON.stringify(user))
         return user
       } else {
-        console.warn("User fetch failed:", response.status)
         return null
       }
-    } catch (error) {
-      console.error("Error fetching user:", error)
+    } catch {
       return null
     }
   }
@@ -88,8 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           showNotification(data.detail || "Registrasi gagal.", "error")
         }
-      } catch (error) {
-        console.error("Registration error:", error)
+      } catch {
         showNotification("Terjadi kesalahan saat registrasi.", "error")
       }
     })
@@ -110,22 +107,23 @@ document.addEventListener("DOMContentLoaded", () => {
           })
         })
         const data = await response.json()
-        if (response.ok) {
+        if (response.ok && data.access_token) {
           setToken(data.access_token)
           await new Promise(r => setTimeout(r, 300))
-          await getCurrentUser()
+          let user = await getCurrentUser()
           if (!user || !user.email) {
-            user = { email: email } 
+            user = { email: email }
           }
-
           localStorage.setItem("userEmail", user.email)
+          if (user.full_name) {
+            localStorage.setItem("userName", user.full_name)
+          }
           showNotification("Login berhasil!", "success")
           setTimeout(() => (window.location.href = "dashboard.html"), 1500)
         } else {
           showNotification(data.detail || "Email atau password salah.", "error")
         }
-      } catch (error) {
-        console.error("Login error:", error)
+      } catch {
         showNotification("Terjadi kesalahan saat login.", "error")
       }
     })
